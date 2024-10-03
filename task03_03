@@ -1,0 +1,91 @@
+import json
+
+# Expense Manager class to handle expenses
+class ExpenseManager:
+    def __init__(self, filename='expenses.json'):
+        self.filename = filename
+        self.expenses = []
+        self.load_expenses()
+
+    # Add a new expense
+    def add_expense(self, category, amount):
+        expense = {'category': category, 'amount': amount}
+        self.expenses.append(expense)
+        self.save_expenses()
+
+    # View total expenses
+    def view_total_expenses(self):
+        total = sum(expense['amount'] for expense in self.expenses)
+        print(f"Total Expenses: ${total:.2f}")
+
+    # View expenses by category
+    def view_expenses_by_category(self):
+        category_totals = {}
+        for expense in self.expenses:
+            if expense['category'] in category_totals:
+                category_totals[expense['category']] += expense['amount']
+            else:
+                category_totals[expense['category']] = expense['amount']
+
+        for category, total in category_totals.items():
+            print(f"{category}: ${total:.2f}")
+
+    # Remove an expense by index
+    def remove_expense(self, index):
+        if 0 <= index < len(self.expenses):
+            removed = self.expenses.pop(index)
+            print(f"Removed: {removed['category']} - ${removed['amount']:.2f}")
+            self.save_expenses()
+        else:
+            print("Invalid index. No expense removed.")
+
+    # Save expenses to file
+    def save_expenses(self):
+        with open(self.filename, 'w') as file:
+            json.dump(self.expenses, file)
+
+    # Load expenses from file
+    def load_expenses(self):
+        try:
+            with open(self.filename, 'r') as file:
+                self.expenses = json.load(file)
+        except FileNotFoundError:
+            self.expenses = []
+
+# Main program to interact with the ExpenseManager
+def main():
+    manager = ExpenseManager()
+
+    while True:
+        print("\nExpense Manager")
+        print("1. Add Expense")
+        print("2. View Total Expenses")
+        print("3. View Expenses by Category")
+        print("4. Remove Expense")
+        print("5. Exit")
+
+        choice = input("Choose an option: ")
+
+        if choice == '1':
+            category = input("Enter category (e.g., Food, Rent, Transportation): ")
+            amount = float(input("Enter amount: "))
+            manager.add_expense(category, amount)
+            print("Expense added successfully!")
+        elif choice == '2':
+            manager.view_total_expenses()
+        elif choice == '3':
+            manager.view_expenses_by_category()
+        elif choice == '4':
+            try:
+                index = int(input("Enter the index of the expense to remove: "))
+                manager.remove_expense(index)
+            except ValueError:
+                print("Please enter a valid number.")
+        elif choice == '5':
+            print("Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
